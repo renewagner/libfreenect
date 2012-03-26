@@ -1323,6 +1323,19 @@ int freenect_set_depth_mode(freenect_device* dev, const freenect_frame_mode mode
 	dev->depth_resolution = res;
 	return 0;
 }
+
+int freenect_set_smoothing_mode(freenect_device* dev, const freenect_smoothing_mode mode)
+{
+	switch(mode) {
+	case FREENECT_SMOOTHING_DISABLED:
+		return write_register(dev, 0x16, 0x00);
+		break;
+	case FREENECT_SMOOTHING_HOLE_FILLING_DEPTH_SMOOTHING_ENABLED:
+		return write_register(dev, 0x16, 0x01);
+		break;
+	}
+}
+
 int freenect_set_depth_buffer(freenect_device *dev, void *buf)
 {
 	return stream_setbuf(dev->parent, &dev->depth, buf);

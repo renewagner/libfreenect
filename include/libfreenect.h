@@ -127,6 +127,12 @@ typedef struct {
 	int8_t is_valid;                /**< If 0, this freenect_frame_mode is invalid and does not describe a supported mode.  Otherwise, the frame_mode is valid. */
 } freenect_frame_mode;
 
+/// Enumeration of smoothing modes
+typedef enum {
+	FREENECT_SMOOTHING_DISABLED                             = 0,
+	FREENECT_SMOOTHING_HOLE_FILLING_DEPTH_SMOOTHING_ENABLED = 1,
+} freenect_smoothing_mode;
+	
 /// Enumeration of LED states
 /// See http://openkinect.org/wiki/Protocol_Documentation#Setting_LED for more information.
 typedef enum {
@@ -615,6 +621,16 @@ FREENECTAPI freenect_frame_mode freenect_find_depth_mode(freenect_resolution res
  */
 FREENECTAPI int freenect_set_depth_mode(freenect_device* dev, const freenect_frame_mode mode);
 
+/**
+ * Enables or disables hole filling/depth smoothing.  The depth stream
+ * must be active as this appears to be reset when it is started.
+ *
+ * @param enable Whether to enable hole filling/depth smoothing
+ *
+ * @return 0 on success, < 0 on error
+ */
+FREENECTAPI int freenect_set_smoothing_mode(freenect_device* dev, const freenect_smoothing_mode mode);
+	
 #ifdef __cplusplus
 }
 #endif

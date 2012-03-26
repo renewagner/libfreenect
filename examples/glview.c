@@ -72,6 +72,9 @@ int freenect_led;
 freenect_video_format requested_format = FREENECT_VIDEO_RGB;
 freenect_video_format current_format = FREENECT_VIDEO_RGB;
 
+freenect_smoothing_mode requested_smoothing = FREENECT_SMOOTHING_HOLE_FILLING_DEPTH_SMOOTHING_ENABLED;
+freenect_smoothing_mode current_smoothing = FREENECT_SMOOTHING_HOLE_FILLING_DEPTH_SMOOTHING_ENABLED;
+
 pthread_cond_t gl_frame_cond = PTHREAD_COND_INITIALIZER;
 int got_rgb = 0;
 int got_depth = 0;
@@ -178,6 +181,12 @@ void keyPressed(unsigned char key, int x, int y)
 		if (freenect_angle < -30) {
 			freenect_angle = -30;
 		}
+	}
+	if (key == 'm') {
+		if (requested_smoothing == FREENECT_SMOOTHING_DISABLED)
+			requested_smoothing = FREENECT_SMOOTHING_HOLE_FILLING_DEPTH_SMOOTHING_ENABLED;
+		else
+			requested_smoothing = FREENECT_SMOOTHING_DISABLED;
 	}
 	if (key == '1') {
 		freenect_set_led(f_dev,LED_GREEN);
@@ -369,6 +378,10 @@ void *freenect_threadfunc(void *arg)
 			freenect_set_video_mode(f_dev, freenect_find_video_mode(FREENECT_RESOLUTION_MEDIUM, requested_format));
 			freenect_start_video(f_dev);
 			current_format = requested_format;
+		}
+		if (requested_smoothing != current_smoothing){
+			freenect_set_smoothing_mode(f_dev, requested_smoothing);
+			current_smoothing = requested_smoothing;
 		}
 	}
 
