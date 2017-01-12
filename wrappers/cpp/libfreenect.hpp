@@ -95,6 +95,9 @@ namespace Freenect {
 		void updateState() {
 			if (freenect_update_tilt_state(m_dev) < 0) throw std::runtime_error("Cannot update device state");
 		}
+		void setRangeMode(freenect_range_mode range) {
+			freenect_set_range_mode(m_dev, range);
+		}
 		FreenectTiltState getState() const {
 			return FreenectTiltState(freenect_get_tilt_state(m_dev));
 		}
@@ -174,11 +177,11 @@ namespace Freenect {
 	  private:
 		typedef std::map<int, FreenectDevice*> DeviceMap;
 	  public:
-		Freenect() : m_stop(false) {
+		Freenect(const int device_flags=FREENECT_DEVICE_MOTOR | FREENECT_DEVICE_CAMERA) : m_stop(false) {
 			if(freenect_init(&m_ctx, NULL) < 0) throw std::runtime_error("Cannot initialize freenect library");
 			// We claim both the motor and camera devices, since this class exposes both.
 			// It does not support audio, so we do not claim it.
-			freenect_select_subdevices(m_ctx, static_cast<freenect_device_flags>(FREENECT_DEVICE_MOTOR | FREENECT_DEVICE_CAMERA));
+			freenect_select_subdevices(m_ctx, static_cast<freenect_device_flags>(device_flags));
 			if(pthread_create(&m_thread, NULL, pthread_callback, (void*)this) != 0) throw std::runtime_error("Cannot initialize freenect thread");
 		}
 		~Freenect() {
@@ -194,7 +197,7 @@ namespace Freenect {
 			DeviceMap::iterator it = m_devices.find(_index);
 			if (it != m_devices.end()) delete it->second;
 			ConcreteDevice * device = new ConcreteDevice(m_ctx, _index);
-			m_devices.insert(std::make_pair<int, FreenectDevice*>(_index, device));
+			m_devices.insert(std::make_pair(_index, device));
 			return *device;
 		}
 		void deleteDevice(int _index) {
